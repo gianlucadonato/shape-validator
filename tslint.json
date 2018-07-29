@@ -1,0 +1,30 @@
+{
+  "extends": [ "tslint:recommended" ],
+  "defaultSeverity": "error",
+  "linterOptions": {
+    "exclude": [
+      "./node_modules",
+    ]
+  },
+  "rules": {
+    "no-console": false,
+    "trailing-comma": false,
+    "quotemark": false,
+    "object-literal-sort-keys": false,
+    "member-access": false,
+    "ordered-imports": false,
+    "eofline": false,
+    "arrow-parens": false,
+    "no-unused-expression": false,
+    "no-string-literal": false,
+    "no-shadowed-variable": false,
+    "curly": false,
+    "triple-equals": false,
+    "only-arrow-functions": false,
+    "object-literal-shorthand": false,
+    "no-trailing-whitespace": false,
+    "max-line-length": false
+  },
+  "jsRules": {},
+  "rulesDirectory": []
+}

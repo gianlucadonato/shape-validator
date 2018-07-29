@@ -1,0 +1,64 @@
+{
+  "name": "shape-validator",
+  "version": "1.0.0",
+  "description": "Validates data to easy way in JavaScript.",
+  "main": "dist/shape.js",
+  "browser": "dist/shape.min.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "watch": "tsc -p . --watch",
+    "build": "tsc -p .",
+    "postversion": "npm publish && git push && git push --tags",
+    "test": "mocha test --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gianlucadonato/shape.git"
+  },
+  "keywords": [
+    "validation",
+    "types",
+    "type",
+    "model",
+    "json",
+    "interface",
+    "assert",
+    "assertion",
+    "list",
+    "express",
+    "koa",
+    "struct",
+    "collection",
+    "error",
+    "array",
+    "data",
+    "validator",
+    "schema",
+    "shape",
+    "checker",
+    "valid"
+  ],
+  "author": "Gianluca Donato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gianlucadonato/shape-validator/issues"
+  },
+  "typings": "./typings/index.d.ts",
+  "homepage": "https://github.com/gianlucadonato/shape-validator#readme",
+  "dependencies": {
+    "clone": "^2.1.1",
+    "string-template": "^1.0.0",
+    "validator": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/clone": "^0.1.30",
+    "@types/string-template": "^1.0.2",
+    "@types/validator": "^9.4.1",
+    "mocha": "^4.0.1",
+    "tsc-watch": "^1.0.26",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  }
+}
