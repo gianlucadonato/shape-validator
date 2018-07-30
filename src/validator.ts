@@ -41,7 +41,7 @@ export class Validator {
   }
   isHexadecimal(value) {
     const hexadecimal = /^[0-9A-F]+$/i;
-    return hexadecimal.test(''+value);
+    return hexadecimal.test('' + value);
   }
   isMongoId(value) {
     const str = '' + value;
@@ -75,13 +75,28 @@ export class Validator {
     }
     // If we find at least one property we consider it non empty
     if (this.isObject(value)) {
-      for (let key in value) {
+      for (const key in value) {
         if (value.hasOwnProperty(key))
           return false;
       }
       return true;
     }
     return false;
+  }
+  isLength(value, options) {
+    const str = value.toString();
+    let min;
+    let max;
+    if (typeof (options) === 'object') {
+      min = options.min || 0;
+      max = options.max;
+    } else { // backwards compatibility: isLength(str, min [, max])
+      min = arguments[1];
+      max = arguments[2];
+    }
+    const surrogatePairs = str.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g) || [];
+    const len = str.length - surrogatePairs.length;
+    return len >= min && (typeof max === 'undefined' || len <= max);
   }
 }
 export const valid8 = new Validator();
@@ -99,9 +114,14 @@ validator[TYPES.STRING] = (val) => valid8.isString(val);
 validator[TYPES.UNDEFINED] = (val) => valid8.isUndefined(val);
 validator[TYPES.NUMERIC] = (val) => valid8.isNumber(val);
 validator[TYPES.NUMBER] = (val) => valid8.isNumber(val);
-validator[TYPES.INT] = (val) => valid8.isInteger(val);;
+validator[TYPES.INT] = (val) => valid8.isInteger(val);
 validator[TYPES.MONGOID] = (val) => valid8.isMongoId(val);
-
+validator[TYPES.OBJECTID] = (val) => valid8.isMongoId(val);
+validator[TYPES.PASSWORD] = (val) => {
+  if (!valid8.isLength(val, { min: 3 })) return 'password is too short';
+  if (!valid8.isLength(val, { max: 20 })) return 'password is too long';
+  return true;
+};
 validator[TYPES.ALPHA] = (val) => validate.isAlpha(val);
 validator[TYPES.ALPHANUMERIC] = (val) => validate.isAlphanumeric(val);
 validator[TYPES.ASCII] = (val) => validate.isAscii(val);
@@ -128,6 +148,4 @@ validator[TYPES.LATLONG] = (val) => validate.isLatLong(val);
 validator[TYPES.MAC_ADDR] = (val) => validate.isMACAddress(val);
 validator[TYPES.PORT] = (val) => validate.isPort(val);
 validator[TYPES.UUID] = (val) => validate.isUUID(val);
-
 validator[TYPES.ANY] = (val) => true;
-
