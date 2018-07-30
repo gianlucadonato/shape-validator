@@ -1,6 +1,6 @@
 const format = require('string-template');
 const { LOCALE } = require('../dist/locale.js');
-const Shape = require('../dist/shape.js');
+const { Shape } = require('../dist/index.js');
 
 describe('Check Default', () => {
 
@@ -143,6 +143,22 @@ describe('Check Default', () => {
         value: JSON.stringify(2) 
       });
       e.message === expectedMsg ? done() : done(e);
+    }
+  });
+
+  it('should return ok. default type empty with allowEmpty:true', function (done) {
+    const shape = new Shape({
+      first_name: {
+        type: 'string?',
+        default: '',
+        allowEmpty: true
+      }
+    });
+    try {
+      const data = shape({});
+      data.first_name === '' ? done() : done('nope');
+    } catch (e) {
+      done(e);
     }
   });
 

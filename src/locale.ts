@@ -1,4 +1,4 @@
-import { Locale } from '../typings';
+import { Locale } from './typings/index';
 
 export const LOCALE: Locale = {
   VALIDATION_FAILED: 'Validation failed',

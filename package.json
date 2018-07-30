@@ -1,9 +1,9 @@
 {
   "name": "shape-validator",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Validates data to easy way in JavaScript.",
-  "main": "dist/shape.js",
-  "browser": "dist/shape.min.js",
+  "main": "dist/index.js",
+  "browser": "dist/index.js",
   "directories": {
     "test": "test"
   },
@@ -45,7 +45,7 @@
   "bugs": {
     "url": "https://github.com/gianlucadonato/shape-validator/issues"
   },
-  "typings": "./typings/index.d.ts",
+  "typings": "./src/typings/index.d.ts",
   "homepage": "https://github.com/gianlucadonato/shape-validator#readme",
   "dependencies": {
     "clone": "^2.1.1",

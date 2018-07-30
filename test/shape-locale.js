@@ -1,5 +1,5 @@
 const format = require('string-template');
-const Shape = require('../dist/shape.js');
+const { Shape } = require('../dist/index.js');
 
 describe.skip('Test Locale', () => {
 

@@ -1,6 +1,6 @@
 const format = require('string-template');
 const { LOCALE } = require('../dist/locale.js');
-const Shape = require('../dist/shape.js');
+const { Shape } = require('../dist/index.js');
 
 describe('Allow Null', () => {
 

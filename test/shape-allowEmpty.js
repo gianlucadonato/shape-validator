@@ -1,6 +1,6 @@
 const format = require('string-template');
 const { LOCALE } = require('../dist/locale.js');
-const Shape = require('../dist/shape.js');
+const { Shape } = require('../dist/index.js');
 
 describe('Allow Empty', () => {
 
@@ -8,7 +8,7 @@ describe('Allow Empty', () => {
     Shape.setLocale(LOCALE);
   });
 
-  it('Should return error required. (field:empty; allowEmpty:true; required:true)', (done) => {
+  it('Should return ok. (field:empty; allowEmpty:true; required:true)', (done) => {
     const shape = new Shape({
       first_name: {
         type: 'string',

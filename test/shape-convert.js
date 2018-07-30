@@ -1,6 +1,6 @@
 const format = require('string-template');
 const { LOCALE } = require('../dist/locale.js');
-const Shape = require('../dist/shape.js');
+const { Shape } = require('../dist/index.js');
 
 describe('Convert Function', () => {
 
@@ -39,17 +39,40 @@ describe('Convert Function', () => {
     }
   });
 
-  it('should be return error, CONVERSION_FAILED void returned', (done) => {
-    const shape = new Shape({ 
-      first_name: {
-        type: 'string',
-        convert: (val) => {}
+  it('should be return ok. value null', (done) => {
+    const shape = new Shape({
+      sort: {
+        type: 'any?',
+        default: { username: 1 },
+        convert: (sort) => {
+          // console.log('sort', sort);
+          // Object.keys(sort).forEach(key => sort[key] = Number(sort[key]));
+          return sort;
+        }
       }
     });
     try {
-      shape({ first_name: 'gian' })
+      const data = shape({ })
+      data.sort && data.sort.username === 1 ? done() : done('nope');
     } catch (e) {
-      e.message === LOCALE.CONVERSION_FAILED ? done() : done(e);
+      done(e);
+    }
+  });
+
+  it('should be return ok. convert fn skipped because it returns void instead of value', (done) => {
+    const shape = new Shape({ 
+      first_name: {
+        type: 'string',
+        convert: (val) => {
+          val = 'pippo';
+        }
+      }
+    });
+    try {
+      const data = shape({ first_name: 'gian' })
+      data.first_name === 'gian' ? done() : done('nope');
+    } catch (e) {
+      done(e);
     }
   });
 

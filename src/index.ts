@@ -4,10 +4,10 @@ import { ShapeError } from './error';
 import { LOCALE } from './locale';
 import { TYPES } from './types';
 import { valid8, validator } from './validator';
-import { ModelError, ModelField } from '../typings';
+import { ModelError, ModelField } from './typings/index';
 import { isEmpty, autoCast } from './utils';
 
-class Shape {
+export default class Shape {
 
   model: any;
   opts: any;
@@ -33,7 +33,7 @@ class Shape {
       allowNull: false,
       required: false
     }, opts);
-    
+
     this.defaultField = {
       type: null,
       required: null,
@@ -44,7 +44,7 @@ class Shape {
       onError: null,
       locale: LOCALE
     };
-    
+
     this.error = {
       message: '',
       fields: [],
@@ -54,12 +54,12 @@ class Shape {
       }
     };
 
-    const _valid = this.isValid.bind(this);
-    _valid.shape = this;
-    return _valid
+    const isValid = this.isValid.bind(this);
+    isValid.shape = this;
+    return isValid;
   }
 
-  isValid(obj, parentPath = []): Promise<any>|any {
+  isValid(obj, parentPath = []): Promise<any> | any {
     if (typeof obj !== 'object') {
       const err = new Error(LOCALE.DATA_REQUIRED);
       if (!this.opts.usePromise) throw err;
@@ -73,16 +73,16 @@ class Shape {
     }
 
     const data = clone(obj);
-    const dataExcluded = {}; 
+    const dataExcluded = {};
     const result = {};
 
     if (this.opts.detectUnknown) {
       const unknownFields = [];
-      for (let field in data) {
+      for (const field in data) {
         if (!this.model.hasOwnProperty(field)) {
           unknownFields.push(field);
         }
-      };
+      }
       if (unknownFields.length) {
         this.pushError(LOCALE.UNKNOWN_DETECTED, { unknownFields });
         const err = new ShapeError(this.error);
@@ -91,21 +91,21 @@ class Shape {
       }
     }
 
-    for (let field in this.model) {
+    for (const field in this.model) {
       if (!this.model.hasOwnProperty(field))
         continue;
-      
+
       this.path = [].concat(parentPath);
       this.path.push(field);
-  
+
       this.model[field] = this.normalize(this.model[field]);
       const type = this.model[field].type;
 
-      // #1 apply convert function
-      this.applyConvert(field, data);
-
-      // #2 apply default value
+      // #1 apply default value
       this.applyDefault(field, data);
+
+      // #2 apply convert function
+      this.applyConvert(field, data);
 
       // #3 check required
       if (!this.checkRequired(field, data)) {
@@ -125,7 +125,7 @@ class Shape {
       // #4 check type
       if (!this.checkType(type, field)) {
         continue;
-      };
+      }
 
       // #5 apply auto-cast
       if (!this.applyAutoCast(type, field, data)) {
@@ -176,7 +176,7 @@ class Shape {
       if (strType.endsWith('?')) {
         field.type = strType.slice(0, -1);
         if (!field.hasOwnProperty('required')) {
-          field.required = false;    
+          field.required = false;
         }
       } else if (!field.hasOwnProperty('required')) {
         field.required = true;
@@ -197,8 +197,10 @@ class Shape {
     if (this.model[field].convert) {
       try {
         const res = this.model[field].convert.call(this, data[field], clone(data), valid8);
-        if (res === undefined) throw Error();
-        else data[field] = res;
+        // if (res === undefined) throw Error();
+        // else data[field] = res;
+        if (res !== undefined)
+          data[field] = res;
       } catch (e) {
         const err = new ShapeError(e.message || this.model[field].locale.CONVERSION_FAILED);
         if (!this.opts.usePromise) throw err;
@@ -209,19 +211,8 @@ class Shape {
 
   // Apply default
   applyDefault(field, data) {
-    if (
-      isEmpty(data[field]) && (
-        !isEmpty(this.model[field].default) || 
-        Array.isArray(this.model[field].default) ||
-        typeof this.model[field].default === 'object'
-      )
-    ) {
-      if (
-        this.model[field].default !== null ||
-        this.model[field].default === null && this.model[field].allowNull
-      ) {
-        data[field] = this.model[field].default; 
-      }
+    if (isEmpty(data[field]) && this.model[field].default !== null) {
+      data[field] = this.model[field].default;
     }
   }
 
@@ -237,10 +228,7 @@ class Shape {
   // Check allow null
   checkAllowNull(field, data, res) {
     if (data[field] === null) {
-      if (
-        (!this.opts.allowNull && !this.model[field].allowNull) ||
-        (this.opts.allowNull && (!this.model[field].allowNull && this.model[field].allowNull !== null)) 
-      ) {
+      if (!this.allowNull(field)) {
         if (this.model[field].required) {
           this.pushError(this.model[field].locale.FIELD_NULL, { field });
         }
@@ -258,17 +246,10 @@ class Shape {
   // Check allow empty
   checkAllowEmpty(field, data, res) {
     if (isEmpty(data[field])) {
-      if (
-        (this.opts.allowNull && this.model[field].allowNull) ||
-        (!this.opts.allowNull && this.model[field].allowNull) || 
-        (this.opts.allowNull && this.model[field].allowNull === null)
-      ) {
+      if (this.allowNull(field)) {
         return true;
       }
-      if (
-        (!this.opts.allowEmpty && !this.model[field].allowEmpty) ||
-        (this.opts.allowEmpty && (!this.model[field].allowEmpty && this.model[field].allowEmpty !== null)) 
-      ) {
+      if (!this.allowEmpty(field)) {
         if (this.model[field].required) {
           this.pushError(this.model[field].locale.FIELD_EMPTY, { field });
         }
@@ -326,8 +307,7 @@ class Shape {
         this.pushError(errMsg, { field, value: data[field] });
         return false;
       }
-    }
-    else if (typeof type === 'function') {
+    } else if (typeof type === 'function') {
       if (type.shape && type.shape instanceof Shape) { // Check if is nested model
         try {
           type.call(this, data[field], this.path);
@@ -357,8 +337,7 @@ class Shape {
           return false;
         }
       }
-    }
-    else if (Array.isArray(type)) {
+    } else if (Array.isArray(type)) {
       if (!Array.isArray(data[field])) {
         const errMsg = ((this.model[field] || {}).locale || {}).TYPE_ARRAY_FAIL || LOCALE.TYPE_ARRAY_FAIL;
         this.pushError(errMsg, { type, field, value: data[field] });
@@ -368,8 +347,7 @@ class Shape {
           this.validate(type[0], idx, data[field], { type, field, data, parent });
         });
       }
-    }
-    else if(typeof type === 'undefined') {
+    } else if (typeof type === 'undefined') {
       this.pushError(LOCALE.TYPE_UNDEFINED, { type, field, data, parent });
       return false;
     }
@@ -381,7 +359,7 @@ class Shape {
     if (!obj) return;
     obj.path = obj.path || this.path.join('.');
     obj.type = obj.type || (this.model[obj.path] || {}).type;
-    
+
     message = render(message, obj);
     const field: any = {
       message,
@@ -397,7 +375,31 @@ class Shape {
 
     if (this.model[obj.path] && typeof this.model[obj.path].onError === 'function') {
       this.model[obj.path].onError.call(this, new ShapeError(this.error));
-    }  
+    }
+  }
+
+  allowEmpty(field) {
+    if (
+      this.opts.allowEmpty && this.model[field].allowEmpty ||
+      !this.opts.allowEmpty && this.model[field].allowEmpty ||
+      this.opts.allowEmpty && (this.model[field].allowEmpty === null)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  allowNull(field) {
+    if (
+      this.opts.allowNull && this.model[field].allowNull ||
+      !this.opts.allowNull && this.model[field].allowNull ||
+      this.opts.allowNull && (this.model[field].allowNull === null)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // Add custom type
@@ -435,7 +437,7 @@ class Shape {
   }
 
   static setLocale(obj) {
-    for (let key in obj) {
+    for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         if (!obj[key]) {
           throw new Error(`${key} cannot be empty`);
@@ -446,4 +448,4 @@ class Shape {
   }
 }
 
-export = Shape;
+export { Shape };
