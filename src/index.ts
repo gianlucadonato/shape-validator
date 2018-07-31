@@ -107,32 +107,32 @@ export default class Shape {
       // #2 apply convert function
       this.applyConvert(field, data);
 
-      // #3 check required
-      if (!this.checkRequired(field, data)) {
-        continue;
-      }
-
-      // #4 check null
-      if (!this.checkAllowNull(field, data, result)) {
-        continue;
-      }
-
-      // #5 check empty
-      if (!this.checkAllowEmpty(field, data, result)) {
-        continue;
-      }
-
-      // #4 check type
-      if (!this.checkType(type, field)) {
-        continue;
-      }
-
-      // #5 apply auto-cast
+      // #3 apply auto-cast
       if (!this.applyAutoCast(type, field, data)) {
         continue;
       }
 
-      // #6 validate data
+      // #4 check required
+      if (!this.checkRequired(field, data)) {
+        continue;
+      }
+
+      // #5 check null
+      if (!this.checkAllowNull(field, data, result)) {
+        continue;
+      }
+
+      // #6 check empty
+      if (!this.checkAllowEmpty(field, data, result)) {
+        continue;
+      }
+
+      // #7 check type
+      if (!this.checkType(type, field)) {
+        continue;
+      }
+
+      // #8 validate data
       if (!this.validate(type, field, data)) {
         continue;
       }

@@ -53,6 +53,18 @@ describe('Check Required', () => {
     }
   });
 
+  it('should be return ok. field not required', (done) => {
+    const shape = new Shape({
+      user_id: 'objectId?'
+    });
+    try {
+      const data = shape({ user_id: undefined });
+      data.user_id === undefined ? done() : done(e);
+    } catch (e) {
+      done(e);
+    }
+  });
+
   it('should be return error. FIELD_REQUIRED (value: undefined)', function (done) {
     const shape = new Shape({
       last_name: 'string'

@@ -16,7 +16,7 @@ describe('Auto Cast', () => {
       bool3: 'boolean',
       aString: 'string',
       aNumber: 'number',
-      aUndefined: 'undefined',
+      aUndefined: 'undefined?',
       aNull: 'null',
       email: 'email',
       strArray: ['string'],
@@ -98,5 +98,17 @@ describe('Auto Cast', () => {
     }).catch(e => {
       done();
     });
+  });
+
+  it('should be return ok. field not required', (done) => {
+    const shape = new Shape({
+      user_id: 'objectId?'
+    }, { autoCast: true });
+    try {
+      const data = shape({ user_id: 'undefined' });
+      data.user_id === undefined ? done() : done(e);
+    } catch (e) {
+      done(e);
+    }
   });
 });

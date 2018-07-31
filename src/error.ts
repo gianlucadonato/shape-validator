@@ -1,6 +1,6 @@
 export class ShapeError extends Error {
   message: string;
-  fields: any[]
+  fields: any[];
 
   constructor(...args) {
     super();
