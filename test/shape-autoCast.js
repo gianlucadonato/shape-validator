@@ -13,9 +13,9 @@ describe('Auto Cast', () => {
       any: 'any?',
       bool1: 'boolean',
       bool2: 'boolean',
-      bool3: 'boolean',
       aString: 'string',
       aNumber: 'number',
+      aNumber2: 'number?',
       aUndefined: 'undefined?',
       aNull: 'null',
       email: 'email',
@@ -31,9 +31,9 @@ describe('Auto Cast', () => {
     shape({
       aString: 42,
       aNumber: '3',
-      bool1: 'true',
+      aNumber2: '0',
+      bool1: 'false',
       bool2: 1,
-      bool3: {},
       strArray: [1, 2],
       numArray: ['1', '2'],
       aUndefined: 'undefined',
@@ -44,9 +44,9 @@ describe('Auto Cast', () => {
       if (
         data.aString === '42' &&
         data.aNumber === 3 &&
-        data.bool1 === true &&
+        data.aNumber2 === 0 &&
+        data.bool1 === false &&
         data.bool2 === true &&
-        data.bool3 === true &&
         data.aUndefined === undefined &&
         data.aNull === null &&
         data.email === 'test@test.net' &&
@@ -96,17 +96,34 @@ describe('Auto Cast', () => {
     }).then(data => {
       done('none');
     }).catch(e => {
+      // console.log(e.message);
       done();
     });
   });
 
-  it('should be return ok. field not required', (done) => {
+  it('should be return ok. undefined values', (done) => {
     const shape = new Shape({
-      user_id: 'objectId?'
+      user_id: 'objectId?',
+      other_id: 'objectId?',
+      name: 'string?',
+      null: 'string?',
     }, { autoCast: true });
     try {
-      const data = shape({ user_id: 'undefined' });
-      data.user_id === undefined ? done() : done(e);
+      const data = shape({ 
+        user_id: 'undefined', 
+        other_id: '',
+        null: null
+      });
+      if (
+        data.user_id === undefined && 
+        data.other_id === undefined && 
+        data.name === undefined && 
+        data.null === undefined
+      ) {
+        done();
+      } else {
+        done('nope');
+      }
     } catch (e) {
       done(e);
     }

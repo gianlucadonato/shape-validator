@@ -5,7 +5,7 @@ import { LOCALE } from './locale';
 import { TYPES } from './types';
 import { valid8, validator } from './validator';
 import { ModelError, ModelField } from './typings/index';
-import { isEmpty, autoCast } from './utils';
+import { autoCast } from './utils';
 
 export default class Shape {
 
@@ -211,15 +211,17 @@ export default class Shape {
 
   // Apply default
   applyDefault(field, data) {
-    if (isEmpty(data[field]) && this.model[field].default !== null) {
+    if (valid8.isEmpty(data[field]) && this.model[field].default !== null) {
       data[field] = this.model[field].default;
     }
   }
 
   // Check if field is required
   checkRequired(field, data): boolean {
-    if (this.model[field].required && data[field] === undefined) {
-      this.pushError(this.model[field].locale.FIELD_REQUIRED, { field });
+    if (data[field] === undefined) {
+      if (this.model[field].required) {
+        this.pushError(this.model[field].locale.FIELD_REQUIRED, { field });
+      }
       return false;
     }
     return true;
@@ -245,7 +247,7 @@ export default class Shape {
 
   // Check allow empty
   checkAllowEmpty(field, data, res) {
-    if (isEmpty(data[field])) {
+    if (valid8.isEmpty(data[field])) {
       if (this.allowNull(field)) {
         return true;
       }
@@ -363,7 +365,7 @@ export default class Shape {
     message = render(message, obj);
     const field: any = {
       message,
-      path: obj.path,
+      field: obj.path,
       type: obj.type,
       value: obj.value,
     };

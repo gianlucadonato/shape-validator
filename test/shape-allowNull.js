@@ -39,6 +39,21 @@ describe('Allow Null', () => {
       .catch(e => done(e));
   });
 
+  it('Should return data without the field. (field:undefined; allowNull:true; required:false)', (done) => {
+    const shape = new Shape({
+      yolo: 'string?'
+    }, {
+      allowNull: true, 
+      usePromise: true 
+    });
+
+    shape({ })
+      .then(data => {
+        data.yolo === undefined ? done() : done('nope');
+      })
+      .catch(e => done(e));
+  });
+
   it('Should be return error. (field:null; allowNull:false; required:true)', (done) => {
     const shape = new Shape({
       first_name: {

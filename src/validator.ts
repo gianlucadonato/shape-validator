@@ -65,13 +65,13 @@ export class Validator {
     if (this.isString(value)) {
       return this.isEmptyString(value);
     }
-    // Empty arrays are empty
-    if (this.isArray(value)) {
-      return value.length === 0;
-    }
     // Dates have no attributes but aren't empty
     if (this.isDate(value)) {
       return false;
+    }
+    // Empty arrays are empty
+    if (this.isArray(value)) {
+      return value.length === 0;
     }
     // If we find at least one property we consider it non empty
     if (this.isObject(value)) {
