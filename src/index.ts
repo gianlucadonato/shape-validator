@@ -455,4 +455,7 @@ export default class Shape {
   }
 }
 
-export { Shape };
+export { 
+  Shape,
+  valid8
+};

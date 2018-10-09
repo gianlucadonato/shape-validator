@@ -1,3 +1,5 @@
+import { Validator } from '../validator';
+
 export type ModelField = {
   type: any;
   required: boolean;
@@ -42,12 +44,14 @@ export type Locale = {
 }
 
 export type ModelOptions = {
-  usePromise: boolean;
-  detectUnknown: boolean;
-  autoCast: boolean;
-  allowEmpty: boolean;
-  allowNull: boolean;
-  required: boolean;
+  usePromise?: boolean;
+  detectUnknown?: boolean;
+  autoCast?: boolean;
+  allowEmpty?: boolean;
+  allowNull?: boolean;
+  required?: boolean;
 };
 
 export function Shape(model: any, options?: ModelOptions): void;
+
+export const valid8: Validator;
