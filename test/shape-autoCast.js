@@ -128,4 +128,47 @@ describe('Auto Cast', () => {
       done(e);
     }
   });
+
+  it('should not autocast a string number', (done) => {
+    const shape = new Shape({
+      code: 'string',
+      age: 'number',
+    }, { autoCast: true });
+    try {
+      const data = shape({
+        code: '0002',
+        age: '42'
+      });
+      if (data.code === '0002' && data.age === 42) {
+        done();
+      } else {
+        console.log('data', data);
+        done('nope');
+      }
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('should not autocast', (done) => {
+    const shape = new Shape({
+      age: {
+        type: 'number',
+        autoCast: false
+      },
+    }, { autoCast: true });
+    try {
+      const data = shape({
+        age: '42'
+      });
+      done('nope');
+    } catch (e) {
+      const expectedMsg = format(LOCALE.TYPE_FAIL, {
+        path: 'age',
+        type: '"number"',
+        value: '"42"'
+      });
+      e.message === expectedMsg ? done() : done(e);
+    }
+  });
 });

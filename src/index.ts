@@ -4,13 +4,13 @@ import { ShapeError } from './error';
 import { LOCALE } from './locale';
 import { TYPES } from './types';
 import { valid8, validator } from './validator';
-import { ModelError, ModelField } from './typings/index';
+import { ModelOptions, ModelError, ModelField } from './typings/index';
 import { autoCast } from './utils';
 
 export default class Shape {
 
   model: any;
-  opts: any;
+  opts: ModelOptions;
   defaultField: ModelField;
   path: string[];
   error: ModelError;
@@ -41,6 +41,7 @@ export default class Shape {
       default: null,
       allowNull: null,
       allowEmpty: null,
+      autoCast: null,
       onError: null,
       locale: LOCALE
     };
@@ -174,7 +175,11 @@ export default class Shape {
     }
     if (strType) {
       if (strType.endsWith('?')) {
-        field.type = strType.slice(0, -1);
+        if (Array.isArray(field.type)) {
+          field.type = [strType.slice(0, -1)];
+        } else {
+          field.type = strType.slice(0, -1);
+        }
         if (!field.hasOwnProperty('required')) {
           field.required = false;
         }
@@ -230,15 +235,14 @@ export default class Shape {
   // Check allow null
   checkAllowNull(field, data, res) {
     if (data[field] === null) {
-      if (!this.allowNull(field)) {
+      if (this.allowNull(field)) {
+        res[field] = data[field];
+        return false;
+      } else {
         if (this.model[field].required) {
           this.pushError(this.model[field].locale.FIELD_NULL, { field });
         }
         delete data[field];
-        return false;
-      }
-      if ((!this.opts.autoCast || !this.model[field].autoCast) && data[field] !== undefined) {
-        res[field] = data[field];
         return false;
       }
     }
@@ -248,9 +252,6 @@ export default class Shape {
   // Check allow empty
   checkAllowEmpty(field, data, res) {
     if (valid8.isEmpty(data[field])) {
-      if (this.allowNull(field)) {
-        return true;
-      }
       if (!this.allowEmpty(field)) {
         if (this.model[field].required) {
           this.pushError(this.model[field].locale.FIELD_EMPTY, { field });
@@ -277,7 +278,11 @@ export default class Shape {
 
   // Apply auto cast
   applyAutoCast(type, field, data): boolean {
-    if (this.opts.autoCast || this.model[field].autoCast) {
+    if (
+      (this.opts.autoCast && this.model[field].autoCast) ||
+      (!this.opts.autoCast && this.model[field].autoCast) ||
+      (this.opts.autoCast && this.model[field].autoCast === null)
+    ) {
       data[field] = autoCast(data[field], type);
     }
     return true;

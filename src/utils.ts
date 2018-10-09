@@ -3,6 +3,9 @@ import { valid8 } from './validator';
 export const autoCast = (val: any, type: string) => {    
   // Given a primitive value, try and cast it
   if (typeof val === 'string') {
+    if (type === 'string') {
+      return val; 
+    }
     if (val !== '' && !isNaN(Number(val))) {
       val = Number(val);
     }

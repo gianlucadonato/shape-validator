@@ -6,6 +6,7 @@ export type ModelField = {
   onError: () => void;
   allowNull: boolean;
   allowEmpty: boolean;
+  autoCast: boolean;
   locale: Locale
 }
 
@@ -39,3 +40,14 @@ export type Locale = {
   FIELD_NULL: string;
   UNKNOWN_DETECTED: string;
 }
+
+export type ModelOptions = {
+  usePromise: boolean;
+  detectUnknown: boolean;
+  autoCast: boolean;
+  allowEmpty: boolean;
+  allowNull: boolean;
+  required: boolean;
+};
+
+export function Shape(model: any, options?: ModelOptions): void;

@@ -147,6 +147,58 @@ describe('Check Types', () => {
     }
   });
 
+  it('should return ok. string array', function (done) {
+    const shape = new Shape({
+      uids: {
+        type: ['string'],
+        required: false
+      }
+    });
+    try {
+      // const data = shape({ uids: ['5b6d978f27a1d51d8a8c906c', '5b6d978f27a1d51d8a8c906d'] });
+      const data = shape({ uids: ['hola', 'world'] });
+      if (data.uids && Array.isArray(data.uids) && data.uids.length === 2) {
+        done();
+      } else {
+        done('nope');
+      }
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('should return ok. objectId array', function (done) {
+    const shape = new Shape({
+      uids: ['objectId']
+    });
+    try {
+      const data = shape({ uids: ['5b6d978f27a1d51d8a8c906c', '5b6d978f27a1d51d8a8c906d'] });
+      if (data.uids && Array.isArray(data.uids) && data.uids.length === 2) {
+        done();
+      } else {
+        done('nope');
+      }
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('should return ok. optional objectId array', function (done) {
+    const shape = new Shape({
+      uids: ['objectId?']
+    });
+    try {
+      const data = shape({ uids: ['5b6d978f27a1d51d8a8c906c', '5b6d978f27a1d51d8a8c906d'] });
+      if (data.uids && Array.isArray(data.uids) && data.uids.length === 2) {
+        done();
+      } else {
+        done('nope');
+      }
+    } catch (e) {
+      done(e);
+    }
+  });
+
   it('should return error. TYPE_FAIL obj -> string', function (done) {
     const shape = new Shape({
       created_at: 'date'
@@ -219,5 +271,29 @@ describe('Check Types', () => {
         });
         e.message === expectedMsg ? done() : done(e);
       });
+  });
+
+  it('should return ok. type email', function (done) {
+    const shape = new Shape({
+      email: 'email?'
+    });
+    try {
+      const data = shape({ email: 'foo@gmail.com' });
+      data.email === 'foo@gmail.com' ? done() : done('nope');
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('should return ok. email empty', function (done) {
+    const shape = new Shape({
+      email: 'email?'
+    }, { allowNull: true, allowEmpty: true });
+    try {
+      const data = shape({ email: '' });
+      data.email === '' ? done() : done('nope');
+    } catch (e) {
+      done(e);
+    }
   });
 });

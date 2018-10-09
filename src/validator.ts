@@ -98,6 +98,11 @@ export class Validator {
     const len = str.length - surrogatePairs.length;
     return len >= min && (typeof max === 'undefined' || len <= max);
   }
+  isEmail(value) {
+    const email = value.toString();
+    const EMAIL_REGEXP = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return EMAIL_REGEXP.test(email);
+  }
 }
 export const valid8 = new Validator();
 
@@ -117,6 +122,7 @@ validator[TYPES.NUMBER] = (val) => valid8.isNumber(val);
 validator[TYPES.INT] = (val) => valid8.isInteger(val);
 validator[TYPES.MONGOID] = (val) => valid8.isMongoId(val);
 validator[TYPES.OBJECTID] = (val) => valid8.isMongoId(val);
+validator[TYPES.EMAIL] = (val) => valid8.isEmail(val);
 validator[TYPES.PASSWORD] = (val) => {
   if (!valid8.isLength(val, { min: 3 })) return 'password is too short';
   if (!valid8.isLength(val, { max: 20 })) return 'password is too long';
@@ -132,7 +138,6 @@ validator[TYPES.URL] = (val) => validate.isURL(val);
 validator[TYPES.FQDN] = (val) => validate.isFQDN(val); // fully qualified domain name
 validator[TYPES.DECIMAL] = (val) => validate.isDecimal(val);
 validator[TYPES.DIVISIBLE_BY] = (val, num) => validate.isDivisibleBy(val, num);
-validator[TYPES.EMAIL] = (val) => validate.isEmail(val);
 validator[TYPES.EMPTY] = (val) => validate.isEmpty(val);
 validator[TYPES.FLOAT] = (val) => validate.isFloat(val);
 validator[TYPES.HASH] = (val, hash) => validate.isHash(val, hash);

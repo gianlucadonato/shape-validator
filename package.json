@@ -1,6 +1,6 @@
 {
   "name": "shape-validator",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Validates data to easy way in JavaScript.",
   "main": "dist/index.js",
   "browser": "dist/index.js",

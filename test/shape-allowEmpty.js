@@ -131,6 +131,21 @@ describe('Allow Empty', () => {
       .catch(e => done(e));
   });
 
+  it('Should return empty object. (type:object; field:{}; allowEmpty:true; required:true)', (done) => {
+    const shape = new Shape({
+      user_id: 'objectId?',
+    }, {
+      allowEmpty: true,
+      usePromise: true
+    });
+
+    shape({ user_id: '' })
+      .then(data => {
+        data.user_id === '' ? done() : done('nope');
+      })
+      .catch(e => done(e));
+  });
+
   it('Should return data with empty fields. (allowEmpty for each shape field)', (done) => {
     const shape = new Shape({
       first_name: 'string?',
