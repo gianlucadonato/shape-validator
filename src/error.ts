@@ -2,7 +2,7 @@ export class ShapeError extends Error {
   message: string;
   fields: any[];
 
-  constructor(...args) {
+  constructor(...args: any[]) {
     super();
     if (args[0] && typeof args[0] === 'object') {
       this.message = args[0].message || '';

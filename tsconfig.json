@@ -19,7 +19,7 @@
         "node_modules/*",
       ]
     },
-    "noImplicitAny": false,
+    "noImplicitAny": true,
   },
   "include": [
     "src/**/*",

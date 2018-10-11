@@ -1,6 +1,7 @@
 import * as validator from 'validator';
 
 export interface Validator {
+  [key: string]: any;
   isAny: (value: any) => boolean;
   isNumber: (value: any) => boolean;
   isFunction: (value: any) => boolean;

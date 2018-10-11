@@ -1,6 +1,6 @@
 import { valid8r } from './validator';
 
-export const autoCast = (val: any, type: string) => {
+export const autoCast = (val: any, type: string): any => {
   // Given a primitive value, try and cast it
   if (typeof val === 'string') {
     if (type === 'string') {
@@ -12,7 +12,7 @@ export const autoCast = (val: any, type: string) => {
     if (val === 'undefined') {
       val = undefined;
     }
-    const commons = {
+    const commons: any = {
       true: true,
       false: false,
       null: null,

@@ -31,6 +31,7 @@ export type ModelErrorField = {
 };
 
 export type Locale = {
+  [key: string]: string;
   VALIDATION_FAILED: string;
   CONVERSION_FAILED: string;
   DATA_REQUIRED: string;
