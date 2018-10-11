@@ -14,12 +14,11 @@
       "node_modules/@types",
       "typings"
     ],
-    "paths": {
-      "*": [
-        "node_modules/*",
-      ]
-    },
     "noImplicitAny": true,
+    "strict": false, /* Enable all strict type-checking options. */
+    "strictNullChecks": false, /* Enable strict null checks. */
+    "strictFunctionTypes": true, /* Enable strict checking of function types. */
+    "noImplicitThis": true,
   },
   "include": [
     "src/**/*",
