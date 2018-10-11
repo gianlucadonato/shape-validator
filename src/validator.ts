@@ -1,156 +1,133 @@
-import * as validate from 'validator';
-import { TYPES } from './types';
+import * as validator from 'validator';
+import { Validator } from './typings';
 
-export class Validator {
-  EMPTY_STRING_REGEXP = new RegExp('');
-  isNumber(value) {
-    return typeof value === 'number' && !isNaN(value);
+const valid8r: Validator = Object.create(validator);
+valid8r.isAny = function (value: any) {
+  return true;
+}
+valid8r.isNumber = function (value: any) {
+  return typeof value === 'number' && !isNaN(value);
+}
+valid8r.isFunction = function (value: any) {
+  return typeof value === 'function';
+}
+valid8r.isInteger = function (value: any) {
+  return this.isNumber(value) && value % 1 === 0;
+}
+valid8r.isInt = function (value: any) {
+  return this.isInteger(value);
+}
+valid8r.isString = function (value: any) {
+  return typeof value === 'string';
+}
+valid8r.isBoolean = function (value: any) {
+  return typeof value === 'boolean';
+}
+valid8r.isObject = function (value: any) {
+  return value === Object(value);
+}
+valid8r.isDate = function (value: any) {
+  return value instanceof Date;
+}
+valid8r.isError = function (value: any) {
+  return value instanceof Error;
+}
+valid8r.isDefined = function (value: any) {
+  return value !== null && value !== undefined;
+}
+valid8r.isUndefined = function (value: any) {
+  return typeof value === 'undefined';
+}
+valid8r.isPromise = function (value: any) {
+  return !!value && this.isFunction(value.then);
+}
+valid8r.isArray = function (value: any) {
+  return Array.isArray(value);
+}
+valid8r.isHexadecimal = function (value: any) {
+  const hexadecimal = /^[0-9A-F]+$/i;
+  return hexadecimal.test('' + value);
+}
+valid8r.isMongoId = function (value: any) {
+  const str = '' + value;
+  return this.isHexadecimal(str) && str.length === 24;
+}
+valid8r.isObjectId = function (value: any) {
+  return this.isMongoId(value);
+}
+valid8r.isHash = function (value: any) {
+  // Checks if the object is a hash, which is equivalent to an object that
+  // is neither an array nor a function.
+  return this.isObject(value) && !this.isArray(value) && !this.isFunction(value);
+}
+valid8r.isEmptyString = function (value: string) {
+  const EMPTY_STRING_REGEXP = /^\s*$/;
+  return EMPTY_STRING_REGEXP.test(value.toString());
+}
+valid8r.isEmpty = function (value: any) {
+  // Null and undefined are empty
+  if (!this.isDefined(value)) {
+    return true;
   }
-  isFunction(value) {
-    return typeof value === 'function';
+  // Whitespace strings are empty
+  if (this.isString(value)) {
+    return this.isEmptyString(value);
   }
-  isInteger(value) {
-    return this.isNumber(value) && value % 1 === 0;
-  }
-  isString(value) {
-    return typeof value === 'string';
-  }
-  isBoolean(value) {
-    return typeof value === 'boolean';
-  }
-  isObject(value) {
-    return value === Object(value);
-  }
-  isDate(value) {
-    return value instanceof Date;
-  }
-  isError(value) {
-    return value instanceof Error;
-  }
-  isDefined(value) {
-    return value !== null && value !== undefined;
-  }
-  isUndefined(value) {
-    return typeof value === 'undefined';
-  }
-  isPromise(value) {
-    return !!value && this.isFunction(value.then);
-  }
-  isArray(value) {
-    return Array.isArray(value);
-  }
-  isHexadecimal(value) {
-    const hexadecimal = /^[0-9A-F]+$/i;
-    return hexadecimal.test('' + value);
-  }
-  isMongoId(value) {
-    const str = '' + value;
-    return this.isHexadecimal(str) && str.length === 24;
-  }
-  isHash(value) {
-    // Checks if the object is a hash, which is equivalent to an object that
-    // is neither an array nor a function.
-    return this.isObject(value) && !this.isArray(value) && !this.isFunction(value);
-  }
-  isEmptyString(value) {
-    const EMPTY_STRING_REGEXP = /^\s*$/;
-    return EMPTY_STRING_REGEXP.test(value.toString());
-  }
-  isEmpty(value) {
-    // Null and undefined are empty
-    if (!this.isDefined(value)) {
-      return true;
-    }
-    // Whitespace strings are empty
-    if (this.isString(value)) {
-      return this.isEmptyString(value);
-    }
-    // Dates have no attributes but aren't empty
-    if (this.isDate(value)) {
-      return false;
-    }
-    // Empty arrays are empty
-    if (this.isArray(value)) {
-      return value.length === 0;
-    }
-    // If we find at least one property we consider it non empty
-    if (this.isObject(value)) {
-      for (const key in value) {
-        if (value.hasOwnProperty(key))
-          return false;
-      }
-      return true;
-    }
+  // Dates have no attributes but aren't empty
+  if (this.isDate(value)) {
     return false;
   }
-  isLength(value, options) {
-    const str = value.toString();
-    let min;
-    let max;
-    if (typeof (options) === 'object') {
-      min = options.min || 0;
-      max = options.max;
-    } else { // backwards compatibility: isLength(str, min [, max])
-      min = arguments[1];
-      max = arguments[2];
+  // Empty arrays are empty
+  if (this.isArray(value)) {
+    return value.length === 0;
+  }
+  // If we find at least one property we consider it non empty
+  if (this.isObject(value)) {
+    for (const key in value) {
+      if (value.hasOwnProperty(key))
+        return false;
     }
+    return true;
+  }
+  return false;
+}
+valid8r.isLength = function (value: any, options?: { min: number, max: number }): boolean {
+  const min = options && options.min || 0;
+  const max = options && options.max;
+  if (typeof value === 'string') {
+    const str = value.toString();
     const surrogatePairs = str.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g) || [];
     const len = str.length - surrogatePairs.length;
     return len >= min && (typeof max === 'undefined' || len <= max);
   }
-  isEmail(value) {
-    const email = value.toString();
-    const EMAIL_REGEXP = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return EMAIL_REGEXP.test(email);
+  if (typeof value === 'number') {
+    return value >= min && (typeof max === 'undefined' || value <= max);
+  }
+  return false;
+}
+valid8r.isEmail = function (value: string) {
+  const email = value.toString();
+  const EMAIL_REGEXP = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return EMAIL_REGEXP.test(email);
+}
+valid8r.isPassword = function (value: string) {
+  if (!this.isLength(value, { min: 3 })) return 'password is too short';
+  if (!this.isLength(value, { max: 20 })) return 'password is too long';
+  return true;
+}
+valid8r.isNull = function (value: any) {
+  return value === null;
+}
+valid8r.capitalize = function (value: string) {
+  const str = value.toString();
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+valid8r.validate = function (type: string, value: any) {
+  const methodName = `is${this.capitalize(type)}`;
+  if (typeof this[methodName] === 'function') {
+    return this[methodName](value);
+  } else {
+    throw new Error(`Type ${type} Not Found`);
   }
 }
-export const valid8 = new Validator();
-
-export const validator = {};
-validator[TYPES.BOOLEAN] = (val) => valid8.isBoolean(val);
-validator[TYPES.BOOL] = (val) => valid8.isBoolean(val);
-validator[TYPES.ARRAY] = (val) => valid8.isArray(val);
-validator[TYPES.NULL] = (val) => val === null;
-validator[TYPES.ERROR] = (val) => valid8.isError(val);
-validator[TYPES.DATE] = (val) => valid8.isDate(val);
-validator[TYPES.FUNCTION] = (val) => valid8.isFunction(val);
-validator[TYPES.OBJECT] = (val) => valid8.isObject(val);
-validator[TYPES.STRING] = (val) => valid8.isString(val);
-validator[TYPES.UNDEFINED] = (val) => valid8.isUndefined(val);
-validator[TYPES.NUMERIC] = (val) => valid8.isNumber(val);
-validator[TYPES.NUMBER] = (val) => valid8.isNumber(val);
-validator[TYPES.INT] = (val) => valid8.isInteger(val);
-validator[TYPES.MONGOID] = (val) => valid8.isMongoId(val);
-validator[TYPES.OBJECTID] = (val) => valid8.isMongoId(val);
-validator[TYPES.EMAIL] = (val) => valid8.isEmail(val);
-validator[TYPES.PASSWORD] = (val) => {
-  if (!valid8.isLength(val, { min: 3 })) return 'password is too short';
-  if (!valid8.isLength(val, { max: 20 })) return 'password is too long';
-  return true;
-};
-validator[TYPES.ALPHA] = (val) => validate.isAlpha(val);
-validator[TYPES.ALPHANUMERIC] = (val) => validate.isAlphanumeric(val);
-validator[TYPES.ASCII] = (val) => validate.isAscii(val);
-validator[TYPES.BASE64] = (val) => validate.isBase64(val);
-validator[TYPES.CREDIT_CARD] = (val) => validate.isCreditCard(val);
-validator[TYPES.URI] = (val) => validate.isDataURI(val);
-validator[TYPES.URL] = (val) => validate.isURL(val);
-validator[TYPES.FQDN] = (val) => validate.isFQDN(val); // fully qualified domain name
-validator[TYPES.DECIMAL] = (val) => validate.isDecimal(val);
-validator[TYPES.DIVISIBLE_BY] = (val, num) => validate.isDivisibleBy(val, num);
-validator[TYPES.EMPTY] = (val) => validate.isEmpty(val);
-validator[TYPES.FLOAT] = (val) => validate.isFloat(val);
-validator[TYPES.HASH] = (val, hash) => validate.isHash(val, hash);
-validator[TYPES.HEX_COLOR] = (val) => validate.isHexColor(val);
-validator[TYPES.HEXADECIMAL] = (val) => validate.isHexadecimal(val);
-validator[TYPES.IP] = (val) => validate.isIP(val);
-validator[TYPES.ISBN] = (val) => validate.isISBN(val);
-validator[TYPES.ISSN] = (val) => validate.isISSN(val);
-validator[TYPES.ISRC] = (val) => validate.isISRC(val);
-validator[TYPES.ISIN] = (val, values: any[]) => validate.isIn(val, values);
-validator[TYPES.JSON] = (val) => validate.isJSON(val);
-validator[TYPES.LATLONG] = (val) => validate.isLatLong(val);
-validator[TYPES.MAC_ADDR] = (val) => validate.isMACAddress(val);
-validator[TYPES.PORT] = (val) => validate.isPort(val);
-validator[TYPES.UUID] = (val) => validate.isUUID(val);
-validator[TYPES.ANY] = (val) => true;
+export { valid8r };

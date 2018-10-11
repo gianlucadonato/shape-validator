@@ -1,16 +1,16 @@
-import { valid8 } from './validator';
+import { valid8r } from './validator';
 
-export const autoCast = (val: any, type: string) => {    
+export const autoCast = (val: any, type: string) => {
   // Given a primitive value, try and cast it
   if (typeof val === 'string') {
     if (type === 'string') {
-      return val; 
+      return val;
     }
     if (val !== '' && !isNaN(Number(val))) {
       val = Number(val);
     }
     if (val === 'undefined') {
-      val = undefined; 
+      val = undefined;
     }
     const commons = {
       true: true,
@@ -31,7 +31,7 @@ export const autoCast = (val: any, type: string) => {
     return val; // nothing to do
   }
 
-  if (!valid8.isEmpty(val)) {
+  if (!valid8r.isEmpty(val)) {
     if (type === 'string') {
       return '' + val;
     } else if (type === 'number') {
